@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="style.css" />
+    <title>JS AJAX Search Box</title>
+</head>
+
+<body>
+    <input type="search" name="search" placeholder="City or State" class="search-input js-search-input" />
+    <ul class="suggestions">
+        <li>Filter for a city</li>
+        <li>or a state</li>
+    </ul>
+    <script>
+        const endpoint = 'https://gist.githubusercontent.com/Miserlou/c5cd8364bf9b2420bb29/raw/2bf258763cdddd704f8ffd3ea9a3e81d25e2c6f6/cities.json';
+        
+        const searchInput = document.querySelector('.search-input');
+        const suggestions = document.querySelector('.suggestions');
+        searchInput.addEventListener('change',displayMatchs);
+        searchInput.addEventListener('keyup',displayMatchs);
+
+        let cities = [];
+        fetch(endpoint)
+            .then(blob => blob.json())
+            .then(data => cities.push(...data));        
+        // a function to get a list of matching cities and states from the api
+        function findMatchs(wordToMatch, cities) {
+            return cities.filter(place => {
+                const regex = new RegExp(wordToMatch, 'gi'); 
+            return place.city.match(regex) || place.state.match(regex);
+            })
+        }
+
+        
+        // a function to display a list of cities and states that match the search term
+        function displayMatchs() {
+            const matchArray = findMatchs(this.value, cities);
+            const html = matchArray.map(place => {
+                return `
+                <li>
+                    <span class="name">${place.city}, ${place.state}</span>
+                    <br>
+                    <span class="population">, ${place.population}</span>
+
+                </li>
+                `;
+            }).join('');
+            suggestions.innerHTML = html;
+        }
+
+
+    </script>
+</body>
+
+</html>
